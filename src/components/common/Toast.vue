@@ -1,29 +1,35 @@
 <template>
   <Teleport to="body">
-    <div class="toast-container">
+    <div class="fixed top-4 right-4 z-50 space-y-2">
       <TransitionGroup name="toast" tag="div">
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="toast"
-          :class="[`toast-${toast.type}`, { 'toast-dismissible': toast.dismissible }]"
-          @click="toast.dismissible && removeToast(toast.id)"
+          class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
+          :class="getToastClass(toast.type)"
         >
-          <div class="toast-icon">
-            {{ getIcon(toast.type) }}
+          <div class="p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <div class="w-6 h-6 flex items-center justify-center text-lg" :class="getIconClass(toast.type)">
+                  {{ getIcon(toast.type) }}
+                </div>
+              </div>
+              <div class="ml-3 w-0 flex-1 pt-0.5">
+                <p class="text-sm font-medium text-gray-900" v-if="toast.title">{{ toast.title }}</p>
+                <p class="text-sm text-gray-500" :class="{ 'mt-1': toast.title }">{{ toast.message }}</p>
+              </div>
+              <div class="ml-4 flex-shrink-0 flex">
+                <button
+                  v-if="toast.dismissible"
+                  class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                  @click.stop="removeToast(toast.id)"
+                >
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="toast-content">
-            <div class="toast-title" v-if="toast.title">{{ toast.title }}</div>
-            <div class="toast-message">{{ toast.message }}</div>
-          </div>
-          <button
-            v-if="toast.dismissible"
-            class="toast-close"
-            @click.stop="removeToast(toast.id)"
-            aria-label="Close"
-          >
-            ×
-          </button>
         </div>
       </TransitionGroup>
     </div>
@@ -44,135 +50,29 @@ const getIcon = (type: string) => {
   }
   return icons[type as keyof typeof icons] || icons.info
 }
+
+const getIconClass = (type: string) => {
+  const classes = {
+    success: 'text-success-500',
+    warning: 'text-warning-500',
+    error: 'text-danger-500',
+    info: 'text-primary-500'
+  }
+  return classes[type as keyof typeof classes] || classes.info
+}
+
+const getToastClass = (type: string) => {
+  const classes = {
+    success: 'border-l-4 border-l-success-500',
+    warning: 'border-l-4 border-l-warning-500',
+    error: 'border-l-4 border-l-danger-500',
+    info: 'border-l-4 border-l-primary-500'
+  }
+  return classes[type as keyof typeof classes] || classes.info
+}
 </script>
 
 <style scoped>
-.toast-container {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 500px;
-  pointer-events: none;
-}
-
-.toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px 24px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-left: 5px solid;
-  pointer-events: auto;
-  min-width: 420px;
-  max-width: 500px;
-  transition: all 0.3s ease;
-}
-
-.toast-dismissible {
-  cursor: pointer;
-}
-
-.toast-dismissible:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.toast-success {
-  border-left-color: #16a34a;
-  background: #f0fdf4;
-}
-
-.toast-success .toast-icon {
-  color: #16a34a;
-}
-
-.toast-warning {
-  border-left-color: #f59e0b;
-  background: #fffbeb;
-}
-
-.toast-warning .toast-icon {
-  color: #f59e0b;
-}
-
-.toast-error {
-  border-left-color: #dc2626;
-  background: #fef2f2;
-}
-
-.toast-error .toast-icon {
-  color: #dc2626;
-}
-
-.toast-info {
-  border-left-color: #3b82f6;
-  background: #eff6ff;
-}
-
-.toast-info .toast-icon {
-  color: #3b82f6;
-}
-
-.toast-icon {
-  flex-shrink: 0;
-  margin-top: 3px;
-  font-size: 24px;
-  font-weight: bold;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toast-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.toast-title {
-  font-weight: 600;
-  font-size: 16px;
-  color: #1f2937;
-  margin-bottom: 6px;
-  line-height: 1.4;
-}
-
-.toast-message {
-  font-size: 15px;
-  color: #4b5563;
-  line-height: 1.5;
-  word-wrap: break-word;
-}
-
-.toast-close {
-  flex-shrink: 0;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.toast-close:hover {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
 /* Transitions */
 .toast-enter-active,
 .toast-leave-active {
@@ -191,35 +91,5 @@ const getIcon = (type: string) => {
 
 .toast-move {
   transition: transform 0.3s ease;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .toast-container {
-    top: 16px;
-    right: 16px;
-    left: 16px;
-    max-width: none;
-  }
-  
-  .toast {
-    min-width: auto;
-    max-width: none;
-    padding: 18px 20px;
-  }
-  
-  .toast-icon {
-    font-size: 22px;
-    width: 26px;
-    height: 26px;
-  }
-  
-  .toast-title {
-    font-size: 15px;
-  }
-  
-  .toast-message {
-    font-size: 14px;
-  }
 }
 </style>

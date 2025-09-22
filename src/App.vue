@@ -1,27 +1,34 @@
 <template>
-  <div id="app">
-    <div class="container">
-      <h1>ChurchTools Extension Boilerplate</h1>
-      <p>Welcome {{ user?.firstName }} {{ user?.lastName }}!</p>
-      
-      <!-- Example usage of boilerplate components -->
-      <div class="components-demo">
-        <BaseCard title="Example Card" :loading="loading">
-          <p>This is an example of the BaseCard component from the boilerplate.</p>
-          <button @click="showExampleToast" type="button" class="btn btn-primary">
-            Show Toast Example
-          </button>
-        </BaseCard>
-
-        <BaseCard title="ColorPicker Example" class="mt-3">
-          <div class="mb-3">
-            <label class="form-label">Select a color:</label>
-            <ColorPicker v-model="selectedColor" />
+  <div id="app" class="min-h-screen bg-gray-50">
+    <!-- Navigation Header -->
+    <nav class="bg-primary-600 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <router-link to="/" class="flex items-center text-white hover:text-primary-100 transition-colors">
+              <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+              <span class="text-lg font-semibold">ChurchTools Projektorganisation</span>
+            </router-link>
           </div>
-          <p v-if="selectedColor">Selected color: {{ selectedColor }}</p>
-        </BaseCard>
+          
+          <div class="flex items-center">
+            <span v-if="user" class="text-primary-100 text-sm">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              {{ user.firstName }} {{ user.lastName }}
+            </span>
+          </div>
+        </div>
       </div>
-    </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <router-view />
+    </main>
 
     <!-- Toast container -->
     <Toast />
@@ -30,74 +37,28 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import BaseCard from './components/common/BaseCard.vue'
-import ColorPicker from './components/common/ColorPicker.vue'
 import Toast from './components/common/Toast.vue'
 import { useToast } from './composables/useToast'
 import { churchtoolsClient } from './services/churchtools'
 import type { Person } from './ct-types'
 
 const { showToast } = useToast()
-const loading = ref(false)
 const user = ref<Person | null>(null)
-const selectedColor = ref('')
-
-const showExampleToast = () => {
-  showToast('Success!', 'This is an example toast notification from the boilerplate.', 'success')
-}
 
 onMounted(async () => {
   try {
-    loading.value = true
-    user.value = await churchtoolsClient.get<Person>('/whoami')
+    // In development mode, try to load user info if ChurchTools is configured
+    if (import.meta.env.MODE === 'development' && import.meta.env.VITE_CHURCHTOOLS_URL) {
+      user.value = await churchtoolsClient.get<Person>('/whoami')
+    }
   } catch (error) {
-    console.error('Failed to load user:', error)
-    showToast('Error', 'Failed to load user information', 'error')
-  } finally {
-    loading.value = false
+    console.warn('Failed to load user, running in demo mode:', error)
+    // Show demo mode info
+    showToast('Demo-Modus', 'Läuft mit Mock-Daten - keine ChurchTools-Verbindung', 'info')
   }
 })
 </script>
 
 <style scoped>
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.components-demo {
-  margin-top: 20px;
-}
-
-.mt-3 {
-  margin-top: 1rem;
-}
-
-.mb-3 {
-  margin-bottom: 1rem;
-}
-
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-}
+/* Tailwind handles all styling, minimal custom CSS needed */
 </style>

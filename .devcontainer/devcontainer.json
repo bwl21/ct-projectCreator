@@ -6,10 +6,7 @@
   "name": "Ona",
   // Use "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   // instead of the build to use a pre-built image.
-  "build": {
-    "context": ".",
-    "dockerfile": "Dockerfile"
-  },
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   // Features add additional features to your environment. See https://containers.dev/features
   "features": {
     "ghcr.io/devcontainers/features/node:1": {

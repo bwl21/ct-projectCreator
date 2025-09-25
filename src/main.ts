@@ -3,13 +3,20 @@ import App from './App.vue'
 import router from './router'
 import { churchtoolsClient } from './services/churchtools'
 
-// Import Tailwind CSS
+// Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+// Import FontAwesome CSS
+import '@fortawesome/fontawesome-free/css/all.css'
+
+// Import Tailwind CSS (after Bootstrap to allow overrides)
 import './style.css'
 
 // only import reset.css in development mode to keep the production bundle small and to simulate CT environment
-if (import.meta.env.MODE === 'development') {
-    import('./utils/reset.css');
-}
+// Temporarily disabled to fix navigation layout issues
+// if (import.meta.env.MODE === 'development') {
+//     import('./utils/reset.css');
+// }
 
 declare const window: Window &
     typeof globalThis & {
